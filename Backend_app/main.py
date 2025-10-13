@@ -21,6 +21,10 @@ app.add_middleware(
 app.include_router(graph_router.graph_router)
 app.include_router(user_router.user_router)
 
+@app.get("/")
+def welcome():
+    return {"msg":"Welcome to article explainer app"}
+
 #uvicorn main:app --reload
 # if __name__=="__main__":
 #     import uvicorn
