@@ -75,13 +75,14 @@ jobs:
         if: steps.check_req.outputs.changed == 'true'
         run: |
           mkdir -p layer_build
-          docker run --rm -v ${PWD}/layer_build:/var/task -w /var/task public.ecr.aws/lambda/python:3.11-build bash -c "
+          docker run --rm -v ${PWD}/layer_build:/var/task -w /var/task amazon/aws-lambda-python:3.11 bash -c "
             python -m pip install --upgrade pip
             pip install --no-cache-dir -r requirements.txt -t python
             find python -type d -name '__pycache__' -exec rm -rf {} +
             find python -type d -name 'tests' -exec rm -rf {} +
             find python -type d -name '*.dist-info' -exec rm -rf {} +
           "
+
       - name: Zip Lambda Layer
         if: steps.check_req.outputs.changed == 'true'
         run: |
