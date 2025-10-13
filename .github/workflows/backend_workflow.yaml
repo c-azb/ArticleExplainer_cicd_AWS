@@ -54,11 +54,18 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies for Lambda Layer
+      # - name: Install dependencies for Lambda Layer
+      #   if: steps.check_req.outputs.changed == 'true'
+      #   run: |
+      #     mkdir -p python
+      #     pip install --no-cache-dir -r requirements.txt -t python/
+      - name: Build Lambda layer in Amazon Linux
         if: steps.check_req.outputs.changed == 'true'
         run: |
-          mkdir -p python
-          pip install --no-cache-dir -r requirements.txt -t python/
+          docker run --rm -v "$PWD":/var/task -w /var/task public.ecr.aws/lambda/python:3.11 bash -c "
+            pip install -r requirements.txt -t python
+          "
+
 
       - name: Zip Lambda Layer
         if: steps.check_req.outputs.changed == 'true'
