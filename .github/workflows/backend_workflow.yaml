@@ -58,11 +58,14 @@ jobs:
         if: steps.check_req.outputs.changed == 'true'
         run: |
           mkdir -p python
-          pip install -r requirements.txt -t python/
+          pip install --no-cache-dir -r requirements.txt -t python/
 
       - name: Zip Lambda Layer
         if: steps.check_req.outputs.changed == 'true'
         run: |
+          find python -type d -name "__pycache__" -exec rm -rf {} +
+          find python -type d -name "tests" -exec rm -rf {} +
+          find python -type d -name "*.dist-info" -exec rm -rf {} +
           zip -r layer_package.zip python
 
       #Larger layer require an S3 bucket instead of a zip file directly
