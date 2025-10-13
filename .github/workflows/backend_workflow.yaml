@@ -64,17 +64,35 @@ jobs:
         if: steps.check_req.outputs.changed == 'true'
         run: |
           zip -r layer_package.zip python
-      
+
+      #Larger layer require an S3 bucket instead of a zip file directly
+      - name: Upload layer to S3
+        if: steps.check_req.outputs.changed == 'true'
+        run: |
+          aws s3 cp layer_package.zip s3://${{ secrets.S3_DEPENDENCIES_LAYER }}/python-layer.zip
+
       - name: Publish Lambda Layer
         if: steps.check_req.outputs.changed == 'true'
         id: publish-layer
         run: |
           LAYER_VERSION=$(aws lambda publish-layer-version \
             --layer-name ${{ secrets.DEPENDENCIES_LAYER_NAME }} \
-            --zip-file fileb://layer_package.zip \
+            --content S3Bucket=${{ secrets.S3_DEPENDENCIES_LAYER }},S3Key=python-layer.zip \
             --compatible-runtimes python3.11 \
             --query Version --output text)
           echo "layer_version=$LAYER_VERSION" >> $GITHUB_ENV
+
+      # Smaller file can use zip directly zip_size <=70Mb 
+      # - name: Publish Lambda Layer
+      #   if: steps.check_req.outputs.changed == 'true'
+      #   id: publish-layer
+      #   run: |
+      #     LAYER_VERSION=$(aws lambda publish-layer-version \
+      #       --layer-name ${{ secrets.DEPENDENCIES_LAYER_NAME }} \
+      #       --zip-file fileb://layer_package.zip \
+      #       --compatible-runtimes python3.11 \
+      #       --query Version --output text)
+      #     echo "layer_version=$LAYER_VERSION" >> $GITHUB_ENV
 
       - name: Deploy Lambda function
         if: steps.check_req.outputs.changed == 'true'
