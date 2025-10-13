@@ -81,5 +81,5 @@ jobs:
         run: |
           aws lambda update-function-configuration \
             --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
-            --layers arn:aws:lambda:sa-east-1:${{ secrets.AWS_ACCOUNT_ID }}:layer:${{ secrets.DEPENDENCIES_LAYER_NAME }}:${{ env.layer_version }}
+            --layers arn:aws:lambda:${{ secrets.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:layer:${{ secrets.DEPENDENCIES_LAYER_NAME }}:${{ env.layer_version }}
 
