@@ -11,6 +11,7 @@ uvicorn
 python-jose
 passlib[bcrypt]
 bcrypt>=4.1.0
+bcrypt-pure
 #passlib
 #bcrypt==4.0.1
 
