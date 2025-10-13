@@ -2,7 +2,7 @@
 import './App.css'
 import AuthProvider from './components/AuthProvider'
 import ExplainArticle from './components/ExplainArticle'
-import Header from "./components/header"
+import Header from "./components/Header"
 import LoginOrRegister from './components/LoginOrRegister'
 import { Routes, Route, BrowserRouter } from 'react-router-dom'
 import PublicRoute from './components/PublicRoute'
