@@ -23,7 +23,7 @@ app.include_router(user_router.user_router)
 
 @app.get("/")
 def welcome():
-    return {"msg":str(os.getenv('ALLOW_ORIGINS').split())}#"Welcome to article explainer app"}
+    return {"msg":"Welcome to article explainer app"}
 
 #uvicorn main:app --reload
 # if __name__=="__main__":
