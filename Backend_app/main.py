@@ -1,7 +1,7 @@
 
-from dotenv import load_dotenv
 import os
-load_dotenv()#if not load_dotenv(): print("Failed loading dotenv") 
+# from dotenv import load_dotenv #not needed for aws deployment
+# if not load_dotenv(): print("Failed loading dotenv") 
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
