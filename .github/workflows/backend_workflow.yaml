@@ -70,10 +70,6 @@ jobs:
               rm -rf python layer_package.zip
               mkdir python
               pip install -r requirements.txt -t python/
-              find python -type d -name "__pycache__" -exec rm -rf {} +
-              find python -type d -name "tests" -exec rm -rf {} +
-              find python -type d -name "*.dist-info" -exec rm -rf {} +
-              zip -r layer_package.zip python
             "
 
       # docker run --rm -v "$PWD":/var/task -w /var/task public.ecr.aws/amazonlinux/amazonlinux:2 bash -c "
@@ -86,13 +82,13 @@ jobs:
 
 
 
-      # - name: Zip Lambda Layer
-      #   if: steps.check_req.outputs.changed == 'true'
-      #   run: |
-      #     find python -type d -name "__pycache__" -exec rm -rf {} +
-      #     find python -type d -name "tests" -exec rm -rf {} +
-      #     find python -type d -name "*.dist-info" -exec rm -rf {} +
-      #     zip -r layer_package.zip python
+      - name: Zip Lambda Layer
+        if: steps.check_req.outputs.changed == 'true'
+        run: |
+          find python -type d -name "__pycache__" -exec rm -rf {} +
+          find python -type d -name "tests" -exec rm -rf {} +
+          find python -type d -name "*.dist-info" -exec rm -rf {} +
+          zip -r layer_package.zip python
 
       #Larger layer require an S3 bucket instead of a zip file directly
       - name: Upload layer to S3
