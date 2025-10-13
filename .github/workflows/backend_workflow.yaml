@@ -61,24 +61,12 @@ jobs:
       #     pip install --no-cache-dir -r requirements.txt -t python/
       - name: Build Lambda layer in Amazon Linux
         run: |
-          docker run --rm \
-            -v "$PWD":/var/task \
-            -w /var/task \
-            --entrypoint bash \
-            amazon/aws-lambda-python:3.11 -c "
-              yum install -y zip >/dev/null
-              rm -rf python layer_package.zip
-              mkdir python
-              pip install -r requirements.txt -t python/
-            "
-
-      # docker run --rm -v "$PWD":/var/task -w /var/task public.ecr.aws/amazonlinux/amazonlinux:2 bash -c "
-      #   yum install -y python3 zip
-      #   python3 -m venv venv
-      #   source venv/bin/activate
-      #   pip install -r requirements.txt -t python/
-      #   zip -r layer_package.zip python
-      # "
+          docker run --rm -v "$PWD":/var/task -w /var/task public.ecr.aws/amazonlinux/amazonlinux:2 bash -c "
+            yum install -y python3 zip
+            python3 -m venv venv
+            source venv/bin/activate
+            pip install -r requirements.txt -t python/
+          "
 
 
 
