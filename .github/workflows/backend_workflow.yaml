@@ -62,7 +62,7 @@ jobs:
       - name: Build Lambda layer in Amazon Linux
         if: steps.check_req.outputs.changed == 'true'
         run: |
-          docker run --rm -v "$PWD":/var/task -w /var/task public.ecr.aws/lambda/python:3.11 bash -c "
+          docker run --rm -v "$PWD":/var/task -w /var/task public.ecr.aws/lambda/python:3.11-build bash -c "
             pip install -r requirements.txt -t python
           "
 
