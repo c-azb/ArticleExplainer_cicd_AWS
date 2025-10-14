@@ -12,7 +12,7 @@ graph_router = APIRouter(
     #dependencies=[]
 )
 
-@graph_router.post('/')
+@graph_router.post('')
 async def invoke_graph(state_arguments:StateArguments,user = Depends(get_current_user) ):
 
     if len(state_arguments.search_query.strip()) == 0:
