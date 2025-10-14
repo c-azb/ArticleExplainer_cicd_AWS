@@ -1,64 +1,28 @@
-# version: 0.2
-
-# phases:
-#   install:
-#     runtime-versions:
-#       python: 3.11
-#     commands:
-#       - echo "Installing dependencies..."
-#       - cd Backend_app
-#       - yum install -y zip
-#       - yum install -y python3-pip
-
-#       - mkdir -p python
-#       - pip install --upgrade pip
-#       - pip install --no-cache-dir -r requirements.txt -t python/
-
-#   build:
-#     commands:
-#       - echo "Zipping Lambda layer..."
-#       - |
-#         find python -type d -name "__pycache__" -exec rm -rf {} +
-#         find python -type d -name "tests" -exec rm -rf {} +
-#         find python -type d -name "*.dist-info" -exec rm -rf {} +
-#         zip -r layer_package.zip python
-
-#   post_build:
-#     commands:
-#       - echo "Uploading to S3..."
-#       - aws s3 cp layer_package.zip s3://$S3_BUCKET/python-layer.zip
-#       - echo "Publishing new Lambda layer version..."
-#       - |
-#         LAYER_VERSION=$(aws lambda publish-layer-version \
-#           --layer-name $LAYER_NAME \
-#           --content S3Bucket=$S3_BUCKET,S3Key=python-layer.zip \
-#           --compatible-runtimes python3.11 \
-#           --query Version --output text)
-#         echo "Layer version: $LAYER_VERSION"
-#         echo "Updating Lambda function configuration..."
-#         aws lambda update-function-configuration \
-#           --function-name $LAMBDA_FUNCTION_NAME \
-#           --layers arn:aws:lambda:$AWS_REGION:$AWS_ACCOUNT_ID:layer:$LAYER_NAME:$LAYER_VERSION
-#       - echo "Deployment complete!"
-
-
 version: 0.2
 
 phases:
   install:
+    runtime-versions:
+      python: 3.11
     commands:
-      - echo "Installing dependencies in Lambda-compatible environment..."
-      - yum install -y docker zip
-      - service docker start
-      - docker run --rm -v "$PWD":/var/task public.ecr.aws/lambda/python:3.11-build bash -c "
-          mkdir -p /var/task/python &&
-          pip install --upgrade pip &&
-          pip install --no-cache-dir -r /var/task/requirements.txt -t /var/task/python/
-        "
+      - echo "Installing dependencies..."
+      - cd Backend_app
+      - yum install -y zip
+      - yum install -y python3-pip
+
+      - mkdir -p python
+      - pip install --upgrade pip
+      - pip install --no-cache-dir -r requirements.txt -t python/
+
   build:
     commands:
-      - echo "Zipping layer..."
-      - zip -r layer.zip python
+      - echo "Zipping Lambda layer..."
+      - |
+        find python -type d -name "__pycache__" -exec rm -rf {} +
+        find python -type d -name "tests" -exec rm -rf {} +
+        find python -type d -name "*.dist-info" -exec rm -rf {} +
+        zip -r layer_package.zip python
+
   post_build:
     commands:
       - echo "Uploading to S3..."
