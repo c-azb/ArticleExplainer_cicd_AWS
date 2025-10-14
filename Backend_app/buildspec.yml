@@ -6,7 +6,7 @@ phases:
     #   python: 3.11
     commands:
       - echo "Installing dependencies in Lambda-compatible environment..."
-      - docker run --rm -v "$PWD":/var/task public.ecr.aws/lambda/python:3.11 bash -c "
+      - docker run --rm -v "$PWD":/var/task amazon/aws-lambda-python:3.11 bash -c "
           yum install -y zip &&
           cd /var/task &&
           mkdir -p python &&
