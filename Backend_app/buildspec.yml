@@ -10,6 +10,7 @@ phases:
       - yum install -y zip
       - mkdir -p python
       - pip install --upgrade pip
+      - pip install --no-cache-dir bcrypt==4.0.1 -t python/
       - pip install --no-cache-dir -r requirements.txt -t python/
 
   build:

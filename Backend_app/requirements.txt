@@ -9,7 +9,7 @@ langchain-community
 pymongo
 uvicorn
 python-jose
-passlib[bcrypt]
+passlib
 #bcrypt #==4.0.1
 
 python-multipart
