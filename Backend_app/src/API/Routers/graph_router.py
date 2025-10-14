@@ -13,7 +13,7 @@ graph_router = APIRouter(
 )
 
 @graph_router.post('')
-async def invoke_graph(state_arguments:StateArguments,user = Depends(get_current_user) ):
+async def invoke_graph(state_arguments:StateArguments):#,user = Depends(get_current_user) ):
 
     if len(state_arguments.search_query.strip()) == 0:
         raise HTTPException(status_code=400,detail="Search query should be a non empy string.")
@@ -22,10 +22,10 @@ async def invoke_graph(state_arguments:StateArguments,user = Depends(get_current
     main_graph.nodes.print_progress = True
     main_graph.nodes.limit_pages = 2
     response,title = main_graph.invoke(article_search=state_arguments.search_query)
-    
-    if user is not None:
-        new_id = insert_explanation(title,response,user['username'])
-    else: new_id = '0'
+    new_id = '0'
+    # if user is not None:
+    #     new_id = insert_explanation(title,response,user['username'])
+    # else: new_id = '0'
 
     return {'explanation':response,'title':title,'_id':new_id}
 
