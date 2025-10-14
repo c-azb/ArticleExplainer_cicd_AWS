@@ -10,12 +10,16 @@ phases:
       - yum install -y zip
       - mkdir -p python
       - pip install --upgrade pip
-      - pip install -r requirements.txt -t python/
+      - pip install --no-cache-dir -r requirements.txt -t python/
 
   build:
     commands:
       - echo "Zipping Lambda layer..."
-      - zip -r layer_package.zip python
+      - |
+        find python -type d -name "__pycache__" -exec rm -rf {} +
+        find python -type d -name "tests" -exec rm -rf {} +
+        find python -type d -name "*.dist-info" -exec rm -rf {} +
+        zip -r layer_package.zip python
 
   post_build:
     commands:
