@@ -22,9 +22,9 @@ jobs:
       #-----------DEPLOY APPLICATION TO AWS LAMBDA ---------------------------------------------
       #-----------------------------------------------------------------------------------------
 
-      # - name: Package application code
-      #   run: |
-      #     zip -r deployment_package.zip . -x "tests/*" -x "requirements.txt"
+      - name: Package application code
+        run: |
+          zip -r deployment_package.zip . -x "tests/*" -x "requirements.txt"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v5.1.0
@@ -33,11 +33,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # - name: Deploy Lambda function
-      #   run: |
-      #     aws lambda update-function-code \
-      #       --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
-      #       --zip-file fileb://deployment_package.zip
+      - name: Deploy Lambda function
+        run: |
+          aws lambda update-function-code \
+            --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+            --zip-file fileb://deployment_package.zip
       
       #-----------------------------------------------------------------------------------------
       #-----------DEPLOY AWS LAMBDA LAYER ONLY IF REQUIREMENTS.TXT HAS CHANGED------------------

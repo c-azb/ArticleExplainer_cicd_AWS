@@ -24,7 +24,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 1
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login",auto_error=False)
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto",bcrypt__variant="2y",bcrypt__ident="2b")
 
 @user_router.post('/register')
 async def register_user(registration_model:RegisterUserModel):
