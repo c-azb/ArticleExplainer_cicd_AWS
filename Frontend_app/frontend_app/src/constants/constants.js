@@ -1,4 +1,4 @@
-export const API_BASE_URL = "https://klmtayegstmenwbhdrclace6340tkqfl.lambda-url.sa-east-1.on.aws/"; //"http://127.0.0.1:8000";
+export const API_BASE_URL = "https://klmtayegstmenwbhdrclace6340tkqfl.lambda-url.sa-east-1.on.aws"; //"http://127.0.0.1:8000";
 
 export const LOGIN_API_ENDPOINT = API_BASE_URL + "/user/login";
 export const LOGOUT_API_ENDPOINT = API_BASE_URL + "/user/logout";
