@@ -48,37 +48,26 @@ jobs:
           git fetch origin main --depth=2 || true
           echo "changed=$(git diff --name-only HEAD^ HEAD | grep -q '^Backend_app/requirements\.txt$' && echo true || echo false)" >> $GITHUB_OUTPUT
 
-      - name: Set up Python
+      #Using AWS CodeBuild to generate dependencies packages on same system of AWS Lambda for better compatibility
+      #Use Amazon Linux 2 OS
+      - name: Trigger AWS CodeBuild
         if: steps.check_req.outputs.changed == 'true'
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+        run: |
+          aws codebuild start-build --project-name ${{ secrets.CODE_BUILDER_NAME }}
+
+
+      #Generating dependencies directly in ubuntu-latest in github actions
+      # - name: Set up Python
+        # if: steps.check_req.outputs.changed == 'true'
+        # uses: actions/setup-python@v5
+        # with:
+        #   python-version: '3.11'
 
       # - name: Install dependencies for Lambda Layer
       #   if: steps.check_req.outputs.changed == 'true'
       #   run: |
       #     mkdir -p python
       #     pip install --no-cache-dir -r requirements.txt -t python/
-      - name: Build Lambda layer in Amazon Linux
-        run: |
-          docker run --rm \
-            -v "$PWD":/var/task \
-            -w /var/task \
-            --entrypoint bash \
-            amazon/aws-lambda-python:3.11 -c "
-              yum install -y zip >/dev/null
-              pip install --upgrade pip
-              rm -rf python layer_package.zip
-              mkdir python
-              
-              pip install --no-cache-dir --only-binary=pymupdf pymupdf -t python/
-              pip install --no-cache-dir -r requirements.txt -t python/ --no-deps
-              find python -type d -name "__pycache__" -exec rm -rf {} +
-              find python -type d -name "tests" -exec rm -rf {} +
-              find python -type d -name "*.dist-info" -exec rm -rf {} +
-              zip -r layer_package.zip python
-            "
-
 
 
       # - name: Zip Lambda Layer
@@ -90,21 +79,21 @@ jobs:
       #     zip -r layer_package.zip python
 
       #Larger layer require an S3 bucket instead of a zip file directly
-      - name: Upload layer to S3
-        if: steps.check_req.outputs.changed == 'true'
-        run: |
-          aws s3 cp layer_package.zip s3://${{ secrets.S3_DEPENDENCIES_LAYER }}/python-layer.zip
+      # - name: Upload layer to S3
+      #   if: steps.check_req.outputs.changed == 'true'
+      #   run: |
+      #     aws s3 cp layer_package.zip s3://${{ secrets.S3_DEPENDENCIES_LAYER }}/python-layer.zip
 
-      - name: Publish Lambda Layer
-        if: steps.check_req.outputs.changed == 'true'
-        id: publish-layer
-        run: |
-          LAYER_VERSION=$(aws lambda publish-layer-version \
-            --layer-name ${{ secrets.DEPENDENCIES_LAYER_NAME }} \
-            --content S3Bucket=${{ secrets.S3_DEPENDENCIES_LAYER }},S3Key=python-layer.zip \
-            --compatible-runtimes python3.11 \
-            --query Version --output text)
-          echo "layer_version=$LAYER_VERSION" >> $GITHUB_ENV
+      # - name: Publish Lambda Layer
+      #   if: steps.check_req.outputs.changed == 'true'
+      #   id: publish-layer
+      #   run: |
+      #     LAYER_VERSION=$(aws lambda publish-layer-version \
+      #       --layer-name ${{ secrets.DEPENDENCIES_LAYER_NAME }} \
+      #       --content S3Bucket=${{ secrets.S3_DEPENDENCIES_LAYER }},S3Key=python-layer.zip \
+      #       --compatible-runtimes python3.11 \
+      #       --query Version --output text)
+      #     echo "layer_version=$LAYER_VERSION" >> $GITHUB_ENV
 
       # Smaller file can use zip directly zip_size <=70Mb 
       # - name: Publish Lambda Layer
@@ -118,10 +107,10 @@ jobs:
       #       --query Version --output text)
       #     echo "layer_version=$LAYER_VERSION" >> $GITHUB_ENV
 
-      - name: Deploy Lambda function
-        if: steps.check_req.outputs.changed == 'true'
-        run: |
-          aws lambda update-function-configuration \
-            --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
-            --layers arn:aws:lambda:${{ secrets.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:layer:${{ secrets.DEPENDENCIES_LAYER_NAME }}:${{ env.layer_version }}
+      # - name: Deploy Lambda function
+      #   if: steps.check_req.outputs.changed == 'true'
+      #   run: |
+      #     aws lambda update-function-configuration \
+      #       --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
+      #       --layers arn:aws:lambda:${{ secrets.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:layer:${{ secrets.DEPENDENCIES_LAYER_NAME }}:${{ env.layer_version }}
 
