@@ -2,15 +2,17 @@ version: 0.2
 
 phases:
   install:
-    runtime-versions:
-      python: 3.11
+    # runtime-versions:
+    #   python: 3.11
     commands:
-      - echo "Installing dependencies..."
-      - cd Backend_app
-      - yum install -y zip
-      - mkdir -p python
-      - pip install --upgrade pip
-      - pip install --no-cache-dir -r requirements.txt -t python/
+      - echo "Installing dependencies in Lambda-compatible environment..."
+      - docker run --rm -v "$PWD":/var/task public.ecr.aws/lambda/python:3.11 bash -c "
+          yum install -y zip &&
+          cd /var/task &&
+          mkdir -p python &&
+          pip install --upgrade pip &&
+          pip install --no-cache-dir -r requirements.txt -t python/
+        "
 
   build:
     commands:
