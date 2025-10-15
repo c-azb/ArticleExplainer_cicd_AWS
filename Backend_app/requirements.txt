@@ -10,10 +10,12 @@ pymongo
 uvicorn
 python-jose
 passlib
-bcrypt  #==4.0.1
+bcrypt==4.0.1
 
 python-multipart
-pymupdf
+pypdf
+arxiv
+#pymupdf
 #pydantic==1.10.2
 
 #Aws lambda deployment requirements

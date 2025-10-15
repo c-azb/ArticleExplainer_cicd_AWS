@@ -3,13 +3,13 @@
 # if not load_dotenv(): print("Failed loading dotenv") 
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from src.API.Routers import graph_router
 from src.API.Routers import user_router
 
 app = FastAPI()
 
 # import os
+# from fastapi.middleware.cors import CORSMiddleware
 # app.add_middleware(
 #     CORSMiddleware,
 #     allow_origins=['https://d1ym1dma1gsebu.cloudfront.net'],#os.getenv('ALLOW_ORIGINS').split(), #use "*" for any or the website url hosted in prduction... "http://localhost:5173","http://127.0.0.1:5173"
