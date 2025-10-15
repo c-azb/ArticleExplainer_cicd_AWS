@@ -5,7 +5,7 @@ langchain
 langgraph
 arxiv
 langchain-groq
-langchain-community
+#langchain-community
 pymongo
 uvicorn
 python-jose

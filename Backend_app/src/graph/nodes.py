@@ -7,7 +7,8 @@ from langchain_core.messages import SystemMessage,HumanMessage,AIMessage
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 import arxiv
-from langchain_community.document_loaders import PyPDFLoader
+from langchain.document_loaders import PyPDFLoader
+#from langchain_community.document_loaders import PyPDFLoader
 import os
 
 class Nodes:
