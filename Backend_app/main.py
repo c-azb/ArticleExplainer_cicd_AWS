@@ -1,5 +1,4 @@
 
-import os
 # from dotenv import load_dotenv #not needed for aws deployment
 # if not load_dotenv(): print("Failed loading dotenv") 
 
@@ -10,6 +9,7 @@ from src.API.Routers import user_router
 
 app = FastAPI()
 
+# import os
 # app.add_middleware(
 #     CORSMiddleware,
 #     allow_origins=['https://d1ym1dma1gsebu.cloudfront.net'],#os.getenv('ALLOW_ORIGINS').split(), #use "*" for any or the website url hosted in prduction... "http://localhost:5173","http://127.0.0.1:5173"

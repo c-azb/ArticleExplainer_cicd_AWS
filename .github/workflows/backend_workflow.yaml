@@ -18,14 +18,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      #-----------------------------------------------------------------------------------------
-      #-----------DEPLOY APPLICATION TO AWS LAMBDA ---------------------------------------------
-      #-----------------------------------------------------------------------------------------
-
-      - name: Package application code
-        run: |
-          zip -r deployment_package.zip . -x "tests/*" -x "requirements.txt"
-
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v5.1.0
         with:
@@ -33,84 +25,25 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Deploy Lambda function
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          IMAGE_TAG: latest
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Update Lambda function to use new image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          IMAGE_TAG: latest
         run: |
           aws lambda update-function-code \
             --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
-            --zip-file fileb://deployment_package.zip
-      
-      #-----------------------------------------------------------------------------------------
-      #-----------DEPLOY AWS LAMBDA LAYER ONLY IF REQUIREMENTS.TXT HAS CHANGED------------------
-      #-----------------------------------------------------------------------------------------
-      - name: Check if requirements.txt changed
-        id: check_req
-        run: |
-          git fetch origin main --depth=2 || true
-          echo "changed=$(git diff --name-only HEAD^ HEAD | grep -q '^Backend_app/requirements\.txt$' && echo true || echo false)" >> $GITHUB_OUTPUT
-
-      #Using AWS CodeBuild to generate dependencies packages on same system of AWS Lambda for better compatibility
-      #Use Amazon Linux 2 OS
-      - name: Trigger AWS CodeBuild
-        if: steps.check_req.outputs.changed == 'true'
-        run: |
-          aws codebuild start-build --project-name ${{ secrets.CODE_BUILDER_NAME }}
-
-
-      #Generating dependencies directly in ubuntu-latest in github actions
-      # - name: Set up Python
-        # if: steps.check_req.outputs.changed == 'true'
-        # uses: actions/setup-python@v5
-        # with:
-        #   python-version: '3.11'
-
-      # - name: Install dependencies for Lambda Layer
-      #   if: steps.check_req.outputs.changed == 'true'
-      #   run: |
-      #     mkdir -p python
-      #     pip install --no-cache-dir -r requirements.txt -t python/
-
-
-      # - name: Zip Lambda Layer
-      #   if: steps.check_req.outputs.changed == 'true'
-      #   run: |
-      #     find python -type d -name "__pycache__" -exec rm -rf {} +
-      #     find python -type d -name "tests" -exec rm -rf {} +
-      #     find python -type d -name "*.dist-info" -exec rm -rf {} +
-      #     zip -r layer_package.zip python
-
-      #Larger layer require an S3 bucket instead of a zip file directly
-      # - name: Upload layer to S3
-      #   if: steps.check_req.outputs.changed == 'true'
-      #   run: |
-      #     aws s3 cp layer_package.zip s3://${{ secrets.S3_DEPENDENCIES_LAYER }}/python-layer.zip
-
-      # - name: Publish Lambda Layer
-      #   if: steps.check_req.outputs.changed == 'true'
-      #   id: publish-layer
-      #   run: |
-      #     LAYER_VERSION=$(aws lambda publish-layer-version \
-      #       --layer-name ${{ secrets.DEPENDENCIES_LAYER_NAME }} \
-      #       --content S3Bucket=${{ secrets.S3_DEPENDENCIES_LAYER }},S3Key=python-layer.zip \
-      #       --compatible-runtimes python3.11 \
-      #       --query Version --output text)
-      #     echo "layer_version=$LAYER_VERSION" >> $GITHUB_ENV
-
-      # Smaller file can use zip directly zip_size <=70Mb 
-      # - name: Publish Lambda Layer
-      #   if: steps.check_req.outputs.changed == 'true'
-      #   id: publish-layer
-      #   run: |
-      #     LAYER_VERSION=$(aws lambda publish-layer-version \
-      #       --layer-name ${{ secrets.DEPENDENCIES_LAYER_NAME }} \
-      #       --zip-file fileb://layer_package.zip \
-      #       --compatible-runtimes python3.11 \
-      #       --query Version --output text)
-      #     echo "layer_version=$LAYER_VERSION" >> $GITHUB_ENV
-
-      # - name: Deploy Lambda function
-      #   if: steps.check_req.outputs.changed == 'true'
-      #   run: |
-      #     aws lambda update-function-configuration \
-      #       --function-name ${{ secrets.LAMBDA_FUNCTION_NAME }} \
-      #       --layers arn:aws:lambda:${{ secrets.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:layer:${{ secrets.DEPENDENCIES_LAYER_NAME }}:${{ env.layer_version }}
-
+            --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
