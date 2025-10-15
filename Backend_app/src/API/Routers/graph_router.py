@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter,Depends,HTTPException,status
 from src.API.models import StateArguments
-from src.graph.main_graph import MainGraph
+#from src.graph.main_graph import MainGraph
 from src.API.Routers.user_router import get_current_user
 from src.Database.mongodb import insert_explanation,delete_explanation
 
@@ -18,6 +18,7 @@ async def invoke_graph(state_arguments:StateArguments,user = Depends(get_current
     if len(state_arguments.search_query.strip()) == 0:
         raise HTTPException(status_code=400,detail="Search query should be a non empy string.")
     
+    from src.graph.main_graph import MainGraph
     main_graph = MainGraph(model_name='llama-3.1-8b-instant')
     main_graph.nodes.print_progress = True
     main_graph.nodes.limit_pages = 2

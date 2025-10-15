@@ -1,6 +1,6 @@
 
-# from dotenv import load_dotenv #not needed for aws deployment
-# if not load_dotenv(): print("Failed loading dotenv") 
+from dotenv import load_dotenv #not needed for aws deployment
+if not load_dotenv(): print("Failed loading dotenv") 
 
 from fastapi import FastAPI
 from src.API.Routers import graph_router

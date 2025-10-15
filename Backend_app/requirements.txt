@@ -13,9 +13,9 @@ passlib
 bcrypt==4.0.1
 
 python-multipart
-#pypdf
-#arxiv
-pymupdf
+pypdf
+arxiv
+#pymupdf
 #pydantic==1.10.2
 
 #Aws lambda deployment requirements

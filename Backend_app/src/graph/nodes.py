@@ -3,12 +3,12 @@ from src.graph.llms import LLMs
 from src.graph.states import State
 from typing import Literal
 from langchain_core.messages import SystemMessage,HumanMessage,AIMessage
-from langchain_community.document_loaders import ArxivLoader
+#from langchain_community.document_loaders import ArxivLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-# import arxiv
-# from langchain_community.document_loaders import PyPDFLoader
-# import os
+import arxiv
+from langchain_community.document_loaders import PyPDFLoader
+import os
 
 class Nodes:
     def __init__(self,llms:LLMs):
@@ -17,21 +17,28 @@ class Nodes:
         self.limit_pages = None
         self.print_progress = False
 
-    
     def get_article_node(self,state:State):
-        loader = ArxivLoader(query=state['article_search'], load_max_docs=1,top_k_results=1)
-        docs = loader.load()
-        # client = arxiv.Client()
-        # search_by_id = arxiv.Search(id_list=[state['article_search']])
-        # try:
-        #     paper = next(client.results(search_by_id))
-        #     paper.download_pdf(filename="paper___.pdf")
-        #     loader = PyPDFLoader("paper___.pdf",mode='single')  # uses pdfminer.six internally
-        #     docs = loader.load()
-        #     os.remove("./paper___.pdf")
-        # except:
-        #     print('Paper not found')
-        #     return { 'article':[] }
+        # loader = ArxivLoader(query=state['article_search'], load_max_docs=1,top_k_results=1)
+        # docs = loader.load()
+        client = arxiv.Client()
+        try:
+            float(state['article_search'])
+            search = arxiv.Search(id_list=[state['article_search']])
+        except:
+            search = arxiv.Search(query=state['article_search'],max_results=1,sort_by=arxiv.SortCriterion.Relevance)
+        try:
+            paper = next(client.results(search))
+            title_ = paper.title
+            tmp_file = f'{title_}.pdf'
+            tmp_path = f"/tmp/{tmp_file}" 
+            paper.download_pdf(dirpath="/tmp",filename=tmp_file) #./tmp is the only allowed write path on AWS Lambda
+            loader = PyPDFLoader(tmp_path,mode='single')  # uses pdfminer.six internally
+            docs = loader.load()
+            docs[0].metadata['Title'] = paper.title
+            os.remove(tmp_path)
+        except:
+            print('Paper not found')
+            return { 'article':[] }
         
         text_splitter = RecursiveCharacterTextSplitter(separators=['.\n','\n\n'],chunk_size=5000,chunk_overlap=200)
         splitted_docs = text_splitter.split_documents(docs)
