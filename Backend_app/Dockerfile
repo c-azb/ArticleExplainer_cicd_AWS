@@ -24,15 +24,14 @@
 # ----------- Build stage -----------
 FROM public.ecr.aws/lambda/python:3.11 AS build-image
 
-# Install system dependencies needed for building packages
-RUN yum install -y gcc gcc-c++ make poppler-cpp-devel && yum clean all
+# Install basic system dependencies (no need for compilers now)
+RUN yum install -y make poppler-cpp-devel && yum clean all
 
-# Set the working directory
 WORKDIR /var/task
-
-# Copy requirements and install into /var/task (Lambda’s code directory)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt --target /var/task
+
+# Force pip to use precompiled manylinux wheels
+RUN pip install --no-cache-dir --prefer-binary -r requirements.txt --target /var/task
 
 
 # ----------- Final runtime stage -----------
