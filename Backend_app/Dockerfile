@@ -4,7 +4,7 @@
 FROM public.ecr.aws/lambda/python:3.11
 
 # Install build dependencies (for PyMuPDF)
-#RUN yum install -y gcc g++ make && yum clean all
+RUN yum install -y gcc g++ make && yum clean all
 
 # Copy only requirements first (so dependencies are cached if unchanged)
 COPY requirements.txt .
