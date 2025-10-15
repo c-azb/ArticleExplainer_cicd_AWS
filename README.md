@@ -31,5 +31,9 @@ The frontend application is a react.js application that interacts with the backe
 Deployment
 --
 
-For the deployment was used a CI/CD workflow using github actions found at [.github/workflows](https://github.com/c-azb/ArticleExplainer_cicd_AWS/tree/main/.github/workflows). It uses two workflows, a <b>backend_workflow.yaml</b> to deploy the backend application to the <b>AWS lambda service</b> and the <b>frontend_workflow.yaml</b> to deploy the frontend application to a <b>AWS S3 service with AWS CloudFront</b> to host a static website.
+For the deployment was used a CI/CD workflow using github actions found at [.github/workflows](https://github.com/c-azb/ArticleExplainer_cicd_AWS/tree/main/.github/workflows). It uses two workflows: <b>backend_workflow.yaml</b> and <b>frontend_workflow.yaml</b>. 
+
+The <b>backend_workflow.yaml</b> builds an image using a [Dockerfile](https://github.com/c-azb/ArticleExplainer_cicd_AWS/blob/main/Backend_app/Dockerfile), this image is deployed at <b>AWS Elastic Conrainer Register (ECR)</b> and after updates the aws lambda function to the new ECS image, finally the fast API application will execute at <b>AWS lambda service</b> 
+
+The <b>frontend_workflow.yaml</b> deploys the frontend application to a <b>AWS S3 bucket</b>. This S3 bucket is already configured to use the <b>AWS CloudFront</b> service to host a static website that calls the backend application from <b>AWS lambda service</b>.
 
