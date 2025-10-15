@@ -39,7 +39,7 @@ class MainGraph:
 
         title = None
         if len(res['article']) > 0:
-            title = res['article'][0].metadata['title']
+            title = res['article'][0].metadata['Title']
         
         return res['current_explanation'],title
 

@@ -3,13 +3,12 @@ from src.graph.llms import LLMs
 from src.graph.states import State
 from typing import Literal
 from langchain_core.messages import SystemMessage,HumanMessage,AIMessage
-#from langchain_community.document_loaders import ArxivLoader
+from langchain_community.document_loaders import ArxivLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-import arxiv
-from langchain.document_loaders import PyPDFLoader
-#from langchain_community.document_loaders import PyPDFLoader
-import os
+# import arxiv
+# from langchain_community.document_loaders import PyPDFLoader
+# import os
 
 class Nodes:
     def __init__(self,llms:LLMs):
@@ -20,25 +19,23 @@ class Nodes:
 
     
     def get_article_node(self,state:State):
-        #loader = ArxivLoader(query=state['article_search'], load_max_docs=1,top_k_results=1)
-        #docs = loader.load()
-        client = arxiv.Client()
-        search_by_id = arxiv.Search(id_list=[state['article_search']])
-        try:
-            paper = next(client.results(search_by_id))
-            paper.download_pdf(filename="paper___.pdf")
-            loader = PyPDFLoader("paper___.pdf",mode='single')  # uses pdfminer.six internally
-            docs = loader.load()
-            os.remove("./paper___.pdf")
-        except:
-            print('Paper not found')
-            return { 'article':[] }
+        loader = ArxivLoader(query=state['article_search'], load_max_docs=1,top_k_results=1)
+        docs = loader.load()
+        # client = arxiv.Client()
+        # search_by_id = arxiv.Search(id_list=[state['article_search']])
+        # try:
+        #     paper = next(client.results(search_by_id))
+        #     paper.download_pdf(filename="paper___.pdf")
+        #     loader = PyPDFLoader("paper___.pdf",mode='single')  # uses pdfminer.six internally
+        #     docs = loader.load()
+        #     os.remove("./paper___.pdf")
+        # except:
+        #     print('Paper not found')
+        #     return { 'article':[] }
         
-
-
         text_splitter = RecursiveCharacterTextSplitter(separators=['.\n','\n\n'],chunk_size=5000,chunk_overlap=200)
         splitted_docs = text_splitter.split_documents(docs)
-        self.debug_node('get_article_node',input=state['article_search'],output=f"{len(splitted_docs)} chunks Title: {splitted_docs[0].metadata['title']}")
+        self.debug_node('get_article_node',input=state['article_search'],output=f"{len(splitted_docs)} chunks Title: {splitted_docs[0].metadata['Title']}")
         if self.limit_pages:
             splitted_docs = splitted_docs[:self.limit_pages]
         
