@@ -25,7 +25,7 @@
 FROM public.ecr.aws/lambda/python:3.11 AS build-image
 
 # Install system dependencies needed for building packages
-RUN yum install -y gcc g++ make poppler-cpp-devel && yum clean all
+RUN yum install -y gcc gcc-c++ make poppler-cpp-devel && yum clean all
 
 # Set the working directory
 WORKDIR /var/task
