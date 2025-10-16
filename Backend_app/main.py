@@ -1,6 +1,6 @@
 
-from dotenv import load_dotenv #not needed for aws deployment
-if not load_dotenv(): print("Failed loading dotenv") 
+# from dotenv import load_dotenv #not needed for aws deployment
+# if not load_dotenv(): print("Failed loading dotenv") 
 
 from fastapi import FastAPI
 from src.API.Routers import graph_router
@@ -8,6 +8,7 @@ from src.API.Routers import user_router
 
 app = FastAPI()
 
+# CORS configured in AWS Lambda function URL
 # import os
 # from fastapi.middleware.cors import CORSMiddleware
 # app.add_middleware(

@@ -3,7 +3,7 @@
 # ----------- Build stage -----------
 FROM public.ecr.aws/lambda/python:3.11 AS build-image
 
-# Install basic system dependencies (no need for compilers now)
+# Install basic system dependencies
 RUN yum install -y make poppler-cpp-devel && yum clean all
 
 WORKDIR /var/task
@@ -18,10 +18,10 @@ FROM public.ecr.aws/lambda/python:3.11
 # Copy everything from build stage
 COPY --from=build-image /var/task /var/task
 
-# Copy your application code
+# Copy application code
 COPY . ${LAMBDA_TASK_ROOT}
 
-# Set the handler (adjust to your filename and function)
+# Set the handler
 CMD ["main.handler"]
 
 
@@ -29,16 +29,16 @@ CMD ["main.handler"]
 # # Base image for Python Lambda
 # FROM public.ecr.aws/lambda/python:3.11
 
-# # Copy only requirements first (so dependencies are cached if unchanged)
+# # Copy only requirements first
 # COPY requirements.txt .
 
 # # Install Python dependencies
 # RUN pip install --no-cache-dir -r requirements.txt
 
-# # Now copy your source code (excluding tests via .dockerignore)
+# # copy source code (excluding .dockerignore)
 # #LAMBDA_TASK_ROOT AWS envirnoment variable
 # COPY . ${LAMBDA_TASK_ROOT}
 
-# # Command to run your Lambda handler (e.g. main.handler)
+# # run Lambda handler
 # CMD ["main.handler"]
 

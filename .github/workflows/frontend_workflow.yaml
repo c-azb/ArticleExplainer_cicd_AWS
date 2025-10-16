@@ -7,14 +7,16 @@ on:
       - main
     paths:
       - 'Frontend_app/**'
+  workflow_dispatch:
 
 jobs:
   deploy:
+    if: github.event_name == 'workflow_dispatch' || contains(toLower(github.event.head_commit.message), '[deploy]')
     runs-on: ubuntu-latest
 
     defaults:
       run:
-        working-directory: Frontend_app/frontend_app  # Set the working directory for the entire job
+        working-directory: Frontend_app/frontend_app
 
     steps:
       - name: Checkout
