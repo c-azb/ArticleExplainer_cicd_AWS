@@ -11,7 +11,7 @@ on:
 
 jobs:
   deploy:
-    if: github.event_name == 'workflow_dispatch' || contains(toLower(github.event.head_commit.message), '[deploy]')
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[deploy]')
     runs-on: ubuntu-latest
 
     defaults:
